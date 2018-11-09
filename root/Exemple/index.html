@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<title>FishEye TD</title>
+<style>
+* {padding:0;margin:0}
+</style>
+</head>
+<body>
+<h1>Distribution des voitures par constructeur et par année</h1>
+<div id="container">
+	<div id="chart"></div>
+</div>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+
+	const margin = {top: 50, right: 30, bottom: 30, left: 60};
+	const width = document.getElementById("container").offsetWidth * 0.95 - margin.left - margin.right;
+	const height = 400 - margin.top - margin.bottom;
+
+	const echelleX=d3.scalePoint().range([0,width]);
+	var echelleY=d3.scaleLinear().range([height,0]);
+
+	/*const line = d3.line()
+		.x(function(d) { return x(d.date); })
+		.y(function(d) { return y(d.close); });
+
+	const area = d3.area()
+		.x(function(d) { return x(d.date); })
+		.y0(height)
+		.y1(function(d) { return y(d.close); });*/
+
+	const svg = d3.select("#chart").append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		
+	d3.csv("mpg.csv").then(function (data) {
+		console.log(data);
+		var yearExtent = d3.extent(data, function(d){return d.year;});
+		var yRange = yearExtent[1]-yearExtent[0];
+
+// on fait cela pour forcer a reconnaire l'année comme un nombre, cela peut arriver que cela ne soit pas directement détecter et faut le forcer.
+		data.forEach(function(d) {
+			d.year=d.year;
+		})
+		
+		echelleX.domain(data.map(function(d,i){return d.manufacturer}));
+		echelleY.domain([yearExtent[0], yearExtent[1]]);
+		console.log(yearExtent);
+		console.log(echelleX("audi"));
+		console.log(echelleY(2001));
+		svg.append("g")
+			.attr("transform", "translate(0," + height + ")")
+			.call(d3.axisBottom(echelleX));
+
+		var yAxis = d3.axisLeft().scale(echelleY) ;
+		svg.append("g")
+			.call(yAxis)
+			.append("text")
+			.attr("fill", "#000")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 6)
+			.attr("dy", "0.71em")
+			.style("text-anchor", "end")
+			.text("Year");
+	  
+		svg.selectAll("y axis").data(echelleY.ticks(10)).enter()
+			.append("line")
+			.attr("stroke", "lightgray")
+			.attr("stroke-width", "1")
+			.attr("stroke-linecap", "butt")
+			.attr("x1", 0)
+			.attr("x2", width)
+			.attr("y1", function(d){ return echelleY(d);})
+			.attr("y2", function(d){ return echelleY(d);});
+		
+		clip = svg.append("svg:clipPath")
+                .attr("id", "clip")
+                .append("svg:rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", width)
+                .attr("height", height);
+				
+		chartBody = svg.append("g")
+                .attr("clip-path", "url(#clip)");
+
+        var bubbles = chartBody.selectAll("circle")
+			.data(data).enter()
+			.append("circle")
+			.attr("cx", function(d){return echelleX(d.manufacturer);})
+			.attr("cy", function(d){return echelleY(d.year);})
+			.attr("r", function(d){return 12;})
+			.attr("stroke", "black")
+			.attr("stroke-width", "1")
+			.attr("fill", "red");
+
+	});
+</script>
+</body>
+</html>
