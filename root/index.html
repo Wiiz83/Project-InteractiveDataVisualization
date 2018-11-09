@@ -42,6 +42,11 @@
 		console.log(data);
 		var yearExtent = d3.extent(data, function(d){return d.year;});
 		var yRange = yearExtent[1]-yearExtent[0];
+
+// on fait cela pour forcer a reconnaire l'année comme un nombre, cela peut arriver que cela ne soit pas directement détecter et faut le forcer.
+		data.forEach(function(d) {
+			d.year=d.year;
+		})
 		
 		echelleX.domain(data.map(function(d,i){return d.manufacturer}));
 		echelleY.domain([yearExtent[0], yearExtent[1]]);

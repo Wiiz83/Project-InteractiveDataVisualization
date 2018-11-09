@@ -1,2 +1,5 @@
 
 tiny.bat
+referer_log
+agent_log
+access_log
