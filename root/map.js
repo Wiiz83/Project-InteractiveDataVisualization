@@ -4,9 +4,9 @@ import { getCountryBubbles } from "./data.js";
 var width = 960,
   height = 500;
 var centered = null;
-var year= 4222;
+var year = 4222;
 
-new Datamap({
+export const map= new Datamap({
   scope: "world",
   responsive: true,
   element: document.getElementById("map"),
@@ -16,12 +16,13 @@ new Datamap({
     popupTemplate: countryTemplate
   },
   fills: {
-    'MAJOR': '#306596',
-    'MEDIUM': '#0fa0fa',
-    'MINOR': '#bada55',
-    defaultFill: '#dddddd',
-    'bubble' : '#000000'
-},
+    HIGH: "#afafaf",
+    LOW: "#123456",
+    MEDIUM: "blue",
+    UNKNOWN: "rgb(0,0,0)",
+    defaultFill: "green",
+    bubble: "#000000"
+  },
   done: function(datamap) {
     datamap.svg.selectAll(".datamaps-subunit").on("click", function(geography) {
       if (centered == geography) {
@@ -30,14 +31,15 @@ new Datamap({
         centered = null;
       } else {
         centered = geography;
-        datamap.bubbles(getCountryBubbles(datamap, geography,year), {
-            popupTemplate: bubbleTemplate
-          });
-        zoomToCountry(datamap, geography);        
+        datamap.bubbles(getCountryBubbles(datamap, geography, year), {
+          popupTemplate: bubbleTemplate
+        });
+        zoomToCountry(datamap, geography);
       }
     });
   }
 });
+map.legend();
 
 function zoomToWorld(map) {
   map.svg
