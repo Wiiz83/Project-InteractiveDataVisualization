@@ -9,3 +9,12 @@ html, body {
 #map {
     height: 100%;
 }
+
+.datamap{
+
+position:relative !important;
+
+}
+.datamaps-legend {
+ margin-top : 5px !important; 
+}

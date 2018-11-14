@@ -1,17 +1,18 @@
 import { bubbleTemplate, countryTemplate } from "./popups.js";
 import { getCountryBubbles } from "./data.js";
 
-var width = 960,
-  height = 500;
+var width = 1200,
+  height = 600;
 var centered = null;
 var year = 4222;
 
-export const map= new Datamap({
+new Datamap({
   scope: "world",
   responsive: true,
   element: document.getElementById("map"),
   projection: "mercator",
   height: height,
+  width: width,
   geographyConfig: {
     popupTemplate: countryTemplate
   },
@@ -38,8 +39,7 @@ export const map= new Datamap({
       }
     });
   }
-});
-map.legend();
+}).legend();
 
 function zoomToWorld(map) {
   map.svg
