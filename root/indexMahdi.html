@@ -16,19 +16,19 @@
   <script>
     var width = 960,
       height = 500;
+    var centered = null;
 
     function calcCentroid(coordinates) {
       const sum = (accumulator, currentValue) => accumulator + currentValue;
+      const n = bounds.length;
       var bounds = coordinates[0],
-        x = bounds.map(u => u[0]).reduce(sum),
-        y = bounds.map(u => u[1]).reduce(sum);
-      return [x / bounds.length, y / bounds.length];
+        x = bounds.map(u => u[0]).reduce(sum) / n,
+        y = bounds.map(u => u[1]).reduce(sum) / n;
+      return [x, y];
     }
-    var centered = null;
 
     function zoomToCountry(map, geography) {
       map.bubbles([]);
-
       if (centered == geography) {
         map.svg
           .selectAll(".datamaps-subunits")
@@ -40,9 +40,8 @@
         return;
       }
       centered = geography;
-      var d = geography;
       var path = d3.geo.path().projection(map.projection);
-      var bounds = path.bounds(d),
+      var bounds = path.bounds(centered),
         dx = bounds[1][0] - bounds[0][0],
         dy = bounds[1][1] - bounds[0][1],
         x = (bounds[0][0] + bounds[1][0]) / 2,
@@ -58,9 +57,6 @@
         .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
       map.bubbles(bubbles);
     }
-
-
-
 
     var map = new Datamap({
       scope: "world",
