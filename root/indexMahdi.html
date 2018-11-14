@@ -14,112 +14,147 @@
   ></div>
 
   <script>
+    var width = 960,
+      height = 500;
 
-    var  projection = d3.geo.
-    =
+    function calcCentroid(coordinates) {
+      const sum = (accumulator, currentValue) => accumulator + currentValue;
+      var bounds = coordinates[0],
+        x = bounds.map(u => u[0]).reduce(sum),
+        y = bounds.map(u => u[1]).reduce(sum);
+      return [x / bounds.length, y / bounds.length];
+    }
+    var centered = null;
 
-    //basic map config with custom fills, mercator projection
+    function zoomToCountry(map, geography) {
+      map.bubbles([]);
+
+      if (centered == geography) {
+        map.svg
+          .selectAll(".datamaps-subunits")
+          .transition()
+          .duration(750)
+          .style("stroke-width", "1.5px")
+          .attr("transform", "");
+        centered = null;
+        return;
+      }
+      centered = geography;
+      var d = geography;
+      var path = d3.geo.path().projection(map.projection);
+      var bounds = path.bounds(d),
+        dx = bounds[1][0] - bounds[0][0],
+        dy = bounds[1][1] - bounds[0][1],
+        x = (bounds[0][0] + bounds[1][0]) / 2,
+        y = (bounds[0][1] + bounds[1][1]) / 2,
+        scale = 0.9 / Math.max(dx / width, dy / height),
+        translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+      map.svg
+        .selectAll("g")
+        .transition()
+        .duration(750)
+        .style("stroke-width", 1.5 / scale + "px")
+        .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+      map.bubbles(bubbles);
+    }
+
+
+
+
     var map = new Datamap({
       scope: "world",
-      setProjection: function(element) {
-        var active = d3.select(null);
+      responsive: true,
 
-        var projection = d3.geo
-          .equirectangular()
-          .center([23, -3])
-          .rotate([4.4, 0])
-          .scale(400)
-          .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
-        var path = d3.geo.path().projection(projection);
-
-        return { path: path, projection: projection };
-      },
       element: document.getElementById("container1"),
+
       projection: "mercator",
+
       height: 500,
+
       fills: {
         defaultFill: "#f0af0a",
+
         lt50: "rgba(0,244,244,0.9)",
+
         gt50: "red"
       },
+
       done: function(datamap) {
         datamap.svg
           .selectAll(".datamaps-subunit")
           .on("click", function(geography) {
-            alert(geography.properties.name);
+            zoomToCountry(datamap, geography);
           });
       },
+
       data: {
         USA: { fillKey: "lt50" },
+
         RUS: { fillKey: "lt50" },
+
         CAN: { fillKey: "lt50" },
+
         BRA: { fillKey: "gt50" },
+
         ARG: { fillKey: "gt50" },
+
         COL: { fillKey: "gt50" },
+
         AUS: { fillKey: "gt50" },
+
         ZAF: { fillKey: "gt50" },
+
         MAD: { fillKey: "gt50" },
+
         FRA: { fillKey: "gt50" }
       }
     });
 
-    //sample of the arc plugin
-    map.arc(
-      [
-        {
-          origin: {
-            latitude: 40.639722,
-            longitude: 73.778889
-          },
-          destination: {
-            latitude: 37.618889,
-            longitude: -122.375
-          }
-        },
-        {
-          origin: {
-            latitude: 30.194444,
-            longitude: -97.67
-          },
-          destination: {
-            latitude: 25.793333,
-            longitude: -0.290556
-          }
-        }
-      ],
-      { strokeWidth: 2 }
-    );
-
     //bubbles, custom popup on hover template
-    map.bubbles(
-      [
-        {
-          name: "Hot",
-          latitude: 21.32,
-          longitude: 5.32,
-          radius: 10,
-          fillKey: "gt50"
-        },
-        {
-          name: "Chilly",
-          latitude: -25.32,
-          longitude: 120.32,
-          radius: 18,
-          fillKey: "lt50"
-        },
-        {
-          name: "Hot again",
-          latitude: 21.32,
-          longitude: -84.32,
-          radius: 8,
-          fillKey: "gt50"
-        }
-      ],
+    var bubbles = [
       {
-        popupTemplate: function(geo, data) {
-          return "<div class='hoverinfo'>It is " + data.name + "</div>";
-        }
+        name: "Hot",
+
+        latitude: 21.32,
+
+        longitude: 5.32,
+
+        radius: 2,
+
+        fillKey: "gt50"
+      },
+
+      {
+        name: "Chilly",
+
+        latitude: -25.32,
+
+        longitude: 120.32,
+
+        radius: 18,
+
+        fillKey: "lt50"
+      },
+
+      {
+        name: "Hot again",
+
+        latitude: 21.32,
+
+        longitude: -84.32,
+
+        radius: 8,
+
+        fillKey: "gt50"
       }
-    );
+    ];
+    /*
+    map.bubbles(bubbles, {
+      popupTemplate: function(geo, data) {
+        return "<div class='hoverinfo'>It is " + data.name + "</div>";
+      }
+    });
+*/
   </script>
 </body>
