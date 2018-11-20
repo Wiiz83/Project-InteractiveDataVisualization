@@ -5,10 +5,7 @@
 	<meta charset="utf-8">
 	<title>Projet Visualisation</title>
     <link rel="stylesheet" href="css/style.css">
-    <script
-  src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-  integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
-  crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
 	<script src="http://d3js.org/d3.v3.min.js"></script>
 	<script src="http://d3js.org/topojson.v1.min.js"></script>
 	<script src="js/datamaps.world.hires.min.js"></script>
@@ -16,51 +13,48 @@
   
   <div id="map" style="position: relative; width: 100%; "></div>
 
-     <script>
+<script>
 
-		d3.json("json/datas.json", function(datas) {
-     	//d3.dsv(";", "/csv/datas.csv", function(datas) {
+d3.json("json/datas.json", function(datas) {
 
-     		console.log("OUI");
+	datas.results.forEach(function(item) {
+		item.radius = 2;
+ 		item.count = item.nkill;
+	});
 
-     		datas.forEach(function(d) {
-     			if(d.nkill != undefined){
-     				console.log("OUI");
-     			}
-			  });
-	
-
-	     			//element.radius = 1;
-	     			//element.count = 1;
-
-     		
-     		var map = new Datamap({
-	        scope: 'world',
-	        element: document.getElementById('map'),
-	        projection: 'mercator',
-	        geographyConfig:{
-	        	popupOnHover : false,
-	        	highlightOnHover : false
-	        },
-		     fills: {
-		        HIGH: '#afafaf',
-		        LOW: '#123456',
-		        MEDIUM: 'blue',
-		        UNKNOWN: 'rgb(0,0,0)',
-		        defaultFill: 'green'
-		      }
-     		 })
-
-     		map.bubbles(datas, {
-     			popupTemplate:function(geo, datas){
-     				return ['<div class="hoverinfo">'+datas.targtype1+'</div>'].join('');
-     			}
-
-     		})
-
-     		map.legend();
-     	})
+	var map = new Datamap({
+	    scope: 'world',
+	    element: document.getElementById('map'),
+	    projection: 'mercator',
+	    geographyConfig:{
+	    	popupOnHover : false,
+	    	highlightOnHover : false,
+	    	borderColor: '#444',
+	        borderWidth: 0.5
+	    },
+	     fills: {
+		   HIGH: "#afafaf",
+		   LOW: "#123456",
+		   MEDIUM: "blue",
+		   UNKNOWN: "rgb(0,0,0)",
+		   defaultFill: "green",
+		   bubble: "#000000"
+	      }
+	})
 
 	
-     </script>
+	map.bubbles(datas.results, {
+		popupTemplate:function(geo, datas){
+			return ['<div class="hoverinfo">'+datas.targtype1+'</div>'].join('');
+		}
+
+	})
+
+		map.legend();
+	})
+
+
+
+	
+</script>
 </body>
