@@ -74,8 +74,13 @@
        }
      });*/
 
-    d3.json("datas.json", function(data) {
+    d3.json("json/datas.json", function(data) {
         console.log(data);
+
+        data.results.forEach(function(item){
+          console.log(item)
+        });
+        
 
     });
      </script>
