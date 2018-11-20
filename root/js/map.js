@@ -99,29 +99,11 @@ function getColorFromKillNumber(mahdi) {
   }
 
 }
+var dataset_events;
+d3.json("json/datas.json", function(data) {
+       dataset_events = data.results;        
 
-var dataset_events = [
-  {
-    name: "Hot",
-    prop1: 45,
-    latitude: 21.32,
-    longitude: 5.32
-  },
-  {
-    name: "Chilly",
-    prop1: 45,
-    latitude: -25.32,
-    longitude: 120.32,
-    radius: 1
-  },
-  {
-    name: "Hot again",
-    prop1: 45,
-    latitude: 21.32,
-    longitude: -84.32,
-    radius: 1
-  }
-];
+});
 
  function bubbleTemplate(geo, data) {
   // TODO
