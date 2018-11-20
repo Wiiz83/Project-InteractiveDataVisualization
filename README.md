@@ -7,3 +7,6 @@
 4. Enregistrer puis fermer le fichier 
 5. Double-cliquer sur le fichier "tiny.bat", cela devrait lancer le serveur web
 6. Afficher l'index.html avec http://localhost:8081/ 
+
+## Aide 
+https://data-map-d3.readthedocs.io/en/latest/index.html 
