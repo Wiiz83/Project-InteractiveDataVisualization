@@ -15,12 +15,12 @@ new Datamap({
     popupTemplate: countryTemplate
   },
   fills: {
-    HIGH: "#afafaf",
-    LOW: "#123456",
-    MEDIUM: "blue",
-    UNKNOWN: "rgb(0,0,0)",
+    HIGH: "#C70039",
+    LOW: "#FFFE33",
+    MEDIUM: "#3385FF",
+    //UNKNOWN: "rgb(0,0,0)",
     defaultFill: "green",
-    bubble: "#000000"
+    //bubble: "#000000"
   },
   done: function(datamap) {
     datamap.svg.selectAll(".datamaps-subunit").on("click", function(geography) {
