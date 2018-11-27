@@ -1,10 +1,13 @@
 
-var width = 1200,
-  height = 600;
+var width = 1200;
+var height = 600;
 var centered = null;
 var year = 4222;
+var map;
+var current_dataset;
+var init_dataset;
 
-new Datamap({
+map = new Datamap({
   scope: "world",
   responsive: true,
   element: document.getElementById("map"),
@@ -75,8 +78,8 @@ function zoomToCountry(map, geography) {
 }
 
 //TODO
- function getCountryBubbles(geo, data, year = null) {
-  return dataset_events.map(u => ({
+function getCountryBubbles(geo, data, year = null) {
+  return current_dataset.map(u => ({
     event: u,
     latitude: u.latitude,
     longitude: u.longitude,
@@ -99,14 +102,15 @@ function getColorFromKillNumber(mahdi) {
   }
 
 }
-var dataset_events;
-d3.json("json/datas.json", function(data) {
-       dataset_events = data.results;        
 
+// Chargement des données 
+d3.json("json/datas.json", function(data) {
+       current_dataset = data.results;    
+       init_dataset = data.results;     
 });
 
- function bubbleTemplate(geo, data) {
-  // TODO
+// 
+function bubbleTemplate(geo, data) {
   return (
     "<div class='hoverinfo'>Bubble: " +
     data.event.name +
@@ -116,9 +120,9 @@ d3.json("json/datas.json", function(data) {
   );
 }
 
- function countryTemplate(geography, data) {
+// 
+function countryTemplate(geography, data) {
   const stats = getCountryStats(geography, data);
-  // TODO
   return (
     "<div class='hoverinfo'>Country: " +
     geography.properties.name +
@@ -129,4 +133,21 @@ d3.json("json/datas.json", function(data) {
     stats.stat1 +
     "</div>"
   );
+}
+
+// Filter les données avec l'année courante 
+function changeCurrentYear(year) {
+  if((current_dataset == undefined) || (init_dataset == undefined)){
+    return;
+  }
+  current_dataset = init_dataset.filter(el => el.iyear==year);
+  reloadMap();
+}
+
+// Recharge la map avec le nouveau dataset
+function reloadMap(){
+  map = new Datamap(map);
+
+
+
 }
