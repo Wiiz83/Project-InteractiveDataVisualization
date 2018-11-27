@@ -32,9 +32,7 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
   
-var zoom = d3.behavior.zoom()
-  .scaleExtent([1, 20])
-  .on("zoom", zoomed);
+
 
 var g = svg.append("g");
 
@@ -44,16 +42,13 @@ var rect = svg.append("rect")
   .attr("height", height)
   .style("fill", "none")
   .style("pointer-events", "all")
-  .call(zoom);
 
 g.append("path")
   .datum(graticule)
   .attr("class", "graticule")
   .attr("d", path);
   
-function zoomed(){
-  g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-}
+
 
 d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/world-50m.json", function(error, world) {
   if (error) throw error;
@@ -198,5 +193,34 @@ d3.select(self.frameElement).style("height", height + "px");
         
 
     //});*/
+    datamap.bubbles(getCentroidBubbles(datamap), {
+      popupTemplate: bubbleTemplate
+    });
+
+    //detection du click pour zoomer
+
+    function getCentroidBubbles(geo, data) {
+  return centroids.map(u => ({
+    event: u,
+    latitude: u.latitude,
+    longitude: u.longitude,
+    borderWidth: 0.5,
+    borderOpacity: 1,
+    radius: 0.4,
+    fillOpacity: 0.75,
+    fillKey: "#C70039",
+    borderColor: "#000000"
+  }));
+}
+
+});
+// teste pour les centroides
+var centroids;
+
+d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/world-50m.json", function(error, world) {
+var features = topojson.feature(world, world.objects.countries).features;
+centroids = features.map(function (feature){
+    return path.centroid(feature);
+});
      </script>
 </body>
