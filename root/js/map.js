@@ -70,10 +70,9 @@ function updateMap(datamap, geography, year,yearchange = false) {
   }
 
   if (yearchange)
-  if (centered != geography) {
+  if (centered == null) {
     datamap.bubbles([]);
     zoomToWorld(datamap);
-    centered = null;
   } else {
     centered = geography;
     datamap.bubbles(getCountryBubbles(datamap, geography, year), {
@@ -152,13 +151,28 @@ d3.json("json/convertcsv.json", function(data) {
   init_dataset = data;
 });
 
-//
+  function armedAttackTypes (event ) {
+    str = "";
+    if (event.attacktype2_txt!=="") {
+      str+= ", "+event.attacktype2_txt;
+    }
+    if (event.attacktype3_txt!=="") {
+      str+= ", "+event.attacktype2_txt;
+    }
+    return str;
+  }
 function bubbleTemplate(geo, data) {
+
   return (
-    "<div class='hoverinfo'>Nkill: " +
-    data.event.nkill +
-    "<br> prop1: " +
-    data.event.prop1 +
+    "<div class='hoverinfo'> "  
+      +  "Succès: " + (data.event.success ==1? 'Oui' : 'Non')+ 
+    "<br> Tués: " +    data.event.nkill + 
+    ' <br> Blessés:  '  + (data.event.nwound == null ? 'N/D' :data.event.nwound )+
+    "<br> Type(s) d'attaque: " + data.event.attacktype1_txt + armedAttackTypes(data.event)
+    +
+      "<br> Ville: " +    data.event.city +
+    "<br> Date: " +    data.event.iday + '/' + data.event.imonth + '/' + data.event.iyear +
+      "<br> Description: " +    data.event.summary +
     "</div>"
   );
 }
