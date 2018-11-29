@@ -161,17 +161,47 @@ d3.json("json/convertcsv.json", function(data) {
     }
     return str;
   }
+  function weapons (event) {
+    str = event.weaptype1_txt;
+    if (event.weaptype2_txt!=="") {
+      str+= ", "+event.weaptype2_txt;
+    }
+    if (event.weaptype3_txt!=="") {
+      str+= ", "+event.weaptype3_txt;
+    }
+    if (event.weaptype4_txt!=="") {
+      str+= ", "+event.weaptype4_txt;
+    }
+    return str;
+  }
+
+  function target (event) {
+    str = event.targtype1_txt;
+    if (event.targtype2_txt!=="") {
+      str+= ", "+event.targtype2_txt;
+    }
+    if (event.targtype3_txt!=="") {
+      str+= ", "+event.targtype3_txt;
+    }
+    return str;
+  }
+
 function bubbleTemplate(geo, data) {
 
   return (
     "<div class='hoverinfo'> "  
       +  "Succès: " + (data.event.success ==1? 'Oui' : 'Non')+ 
+       
+      "<br> Ville: " +    data.event.city +
+    "<br> Date: " +    data.event.iday + '/' + data.event.imonth + '/' + data.event.iyear +  
+      "<br> Cibles(s): " + target(data.event)
+    +
+
     "<br> Tués: " +    data.event.nkill + 
     ' <br> Blessés:  '  + (data.event.nwound == null ? 'N/D' :data.event.nwound )+
     "<br> Type(s) d'attaque: " + data.event.attacktype1_txt + armedAttackTypes(data.event)
     +
-      "<br> Ville: " +    data.event.city +
-    "<br> Date: " +    data.event.iday + '/' + data.event.imonth + '/' + data.event.iyear +
+    "<br> Type(s) d'armes: " + weapons(data.event)+   
       "<br> Description: " +    data.event.summary +
     "</div>"
   );
