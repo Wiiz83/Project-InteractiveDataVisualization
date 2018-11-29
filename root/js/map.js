@@ -1,8 +1,7 @@
-
 var width = 1200;
 var height = 600;
 var centered = null;
-var year = 4222;
+var currentyear = 4222;
 var map;
 var current_dataset;
 var init_dataset;
@@ -22,25 +21,53 @@ map = new Datamap({
     LOW: "#FFFE33",
     MEDIUM: "#3385FF",
     //UNKNOWN: "rgb(0,0,0)",
-    defaultFill: "green",
+    defaultFill: "green"
     //bubble: "#000000"
   },
   done: function(datamap) {
+    $("#slider").on("input change", function() {
+      currentyear = currentYearChanged();
+      updateMap(datamap, centered, currentyear);
+    });
+
     datamap.svg.selectAll(".datamaps-subunit").on("click", function(geography) {
-      if (centered == geography) {
-        datamap.bubbles([]);
-        zoomToWorld(datamap);
-        centered = null;
-      } else {
-        centered = geography;
-        datamap.bubbles(getCountryBubbles(datamap, geography, year), {
-          popupTemplate: bubbleTemplate
-        });
-        zoomToCountry(datamap, geography);
-      }
+      updateMap(datamap, geography, currentyear,true);
     });
   }
 }).legend();
+
+$(document).ready(function() {
+  currentyear = currentYearChanged();
+});
+
+function currentYearChanged() {
+  var slider = document.getElementById("slider");
+  var output = document.getElementById("output");
+  output.innerHTML = slider.value; // Display the default slider value
+
+  // Update the current slider value (each time you drag the slider handle)
+  slider.oninput = function() {
+    output.innerHTML = this.value;
+  };
+
+  // Filtrer les données avec l'année choisie
+  return slider.value;
+}
+
+function updateMap(datamap, geography, year,yearchange = true) {
+  currentyear = year;
+  if (centered == geography && !yearchange) {
+    datamap.bubbles([]);
+    zoomToWorld(datamap);
+    centered = null;
+  } else {
+    centered = geography;
+    datamap.bubbles(getCountryBubbles(datamap, geography, year), {
+      popupTemplate: bubbleTemplate
+    });
+    zoomToCountry(datamap, geography);
+  }
+}
 
 function zoomToWorld(map) {
   map.svg
@@ -70,7 +97,7 @@ function zoomToCountry(map, geography) {
 }
 
 // TODO
- function getCountryStats(geo, data, year = null) {
+function getCountryStats(geo, data, year = null) {
   return {
     stat1: 10,
     stat2: 20
@@ -79,7 +106,9 @@ function zoomToCountry(map, geography) {
 
 //TODO
 function getCountryBubbles(geo, data, year = null) {
-  return current_dataset.map(u => ({
+  var r = current_dataset
+  .filter(u => u.iyear == year)
+  .map(u => ({
     event: u,
     latitude: u.latitude,
     longitude: u.longitude,
@@ -90,26 +119,28 @@ function getCountryBubbles(geo, data, year = null) {
     fillKey: getColorFromKillNumber(u.nkill),
     borderColor: "#000000"
   }));
+  console.log(r);
+
+  return r;
 }
 
-function getColorFromKillNumber(mahdi) {
-  if(mahdi <= 10){
+function getColorFromKillNumber(l) {
+  if (l <= 10) {
     return "LOW";
-  } else if ((500 < mahdi) && (mahdi > 10)){
+  } else if (500 < l && l > 10) {
     return "MEDIUM";
   } else {
     return "HIGH";
   }
-
 }
 
-// Chargement des données 
-d3.json("json/datas.json", function(data) {
-       current_dataset = data.results;    
-       init_dataset = data.results;     
+// Chargement des données
+d3.json("json/convertcsv.json", function(data) {
+  current_dataset = data;
+  init_dataset = data;
 });
 
-// 
+//
 function bubbleTemplate(geo, data) {
   return (
     "<div class='hoverinfo'>Bubble: " +
@@ -120,7 +151,7 @@ function bubbleTemplate(geo, data) {
   );
 }
 
-// 
+//
 function countryTemplate(geography, data) {
   const stats = getCountryStats(geography, data);
   return (
@@ -135,19 +166,16 @@ function countryTemplate(geography, data) {
   );
 }
 
-// Filter les données avec l'année courante 
+// Filter les données avec l'année courante
 function changeCurrentYear(year) {
-  if((current_dataset == undefined) || (init_dataset == undefined)){
+  if (current_dataset == undefined || init_dataset == undefined) {
     return;
   }
-  current_dataset = init_dataset.filter(el => el.iyear==year);
+  current_dataset = init_dataset.filter(el => el.iyear == year);
   reloadMap();
 }
 
 // Recharge la map avec le nouveau dataset
-function reloadMap(){
+function reloadMap() {
   map = new Datamap(map);
-
-
-
 }
