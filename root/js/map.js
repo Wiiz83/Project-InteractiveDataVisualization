@@ -27,11 +27,11 @@ map = new Datamap({
   done: function(datamap) {
     $("#slider").on("input change", function() {
       currentyear = currentYearChanged();
-      updateMap(datamap, centered, currentyear);
+      updateMap(datamap, centered, currentyear,true);
     });
 
     datamap.svg.selectAll(".datamaps-subunit").on("click", function(geography) {
-      updateMap(datamap, geography, currentyear,true);
+      updateMap(datamap, geography, currentyear,false);
     });
   }
 }).legend();
@@ -54,9 +54,23 @@ function currentYearChanged() {
   return slider.value;
 }
 
-function updateMap(datamap, geography, year,yearchange = true) {
+function updateMap(datamap, geography, year,yearchange = false) {
   currentyear = year;
-  if (centered == geography && !yearchange) {
+  if (!yearchange)
+  if (centered == geography) {
+    datamap.bubbles([]);
+    zoomToWorld(datamap);
+    centered = null;
+  } else {
+    centered = geography;
+    datamap.bubbles(getCountryBubbles(datamap, geography, year), {
+      popupTemplate: bubbleTemplate
+    });
+    zoomToCountry(datamap, geography);
+  }
+
+  if (yearchange)
+  if (centered != geography) {
     datamap.bubbles([]);
     zoomToWorld(datamap);
     centered = null;
@@ -119,8 +133,6 @@ function getCountryBubbles(geo, data, year = null) {
     fillKey: getColorFromKillNumber(u.nkill),
     borderColor: "#000000"
   }));
-  console.log(r);
-
   return r;
 }
 
