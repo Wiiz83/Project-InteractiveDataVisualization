@@ -1,7 +1,7 @@
 var width = 1200;
 var height = 600;
 var centered = null;
-var currentyear = 4222;
+var currentyear = 2005;
 var map;
 var current_dataset;
 var init_dataset;
@@ -137,9 +137,9 @@ function getCountryBubbles(geo, data, year = null) {
 }
 
 function getColorFromKillNumber(l) {
-  if (l <= 10) {
+  if (l <= 1) {
     return "LOW";
-  } else if (500 < l && l > 10) {
+  } else if ( l<10) {
     return "MEDIUM";
   } else {
     return "HIGH";
@@ -155,8 +155,8 @@ d3.json("json/convertcsv.json", function(data) {
 //
 function bubbleTemplate(geo, data) {
   return (
-    "<div class='hoverinfo'>Bubble: " +
-    data.event.name +
+    "<div class='hoverinfo'>Nkill: " +
+    data.event.nkill +
     "<br> prop1: " +
     data.event.prop1 +
     "</div>"
