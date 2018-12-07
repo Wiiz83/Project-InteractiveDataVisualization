@@ -22,7 +22,8 @@ d3.json("json/output.json", function (data) {
         success:0,
         nwound:0,
         nkill:0,
-        iso : e.country_iso
+        iso : e.country_iso,
+        fillKey: "UNKNOWN"
       }
     }
     stats[e.iyear][e.country_iso].n ++;
@@ -46,8 +47,7 @@ d3.json("json/output.json", function (data) {
       LOW: "#ff9090",
       MEDIUM: "#ff0000",
       HIGH: "#a30000",
-      SUCCESS: "#7A9A01",
-      FAILURE: "#C91212",
+
       defaultFill: "#D8D8D8"
     },
     done: function (datamap) {
@@ -68,6 +68,7 @@ d3.json("json/output.json", function (data) {
 $(document).ready(function () {
   currentyear = currentYearChanged();
 });
+
 
 function currentYearChanged() {
   var slider = document.getElementById("slider");
@@ -184,7 +185,7 @@ function zoomToCountry(map, geography,year) {
 }
 
 function getCountryColorFromKillNumber(l) {
-  if (l==null) {
+  if (l==null || l==undefined) {
     return"UNKNOWN";
   }
   if (l <= 5) {
@@ -236,7 +237,7 @@ function getCountryBubbles(geo, data, year = currentyear) {
   }
   function getBorderFromWoundNumber(l) {
     if (l <= 1) {
-      return 0;
+      return 0.5;
     } else if (l <= 10){
       return 1;
     } else if (l <= 20){
@@ -259,7 +260,7 @@ function getCountryBubbles(geo, data, year = currentyear) {
       borderOpacity: 1,
       radius: 0.8,
       fillOpacity: 0.8,
-      fillKey: getColorFromSuccess(u.success),
+      fillKey: getColorFromKillNumber(u.nkill),
       borderColor: "#000000"
     }));
 }
