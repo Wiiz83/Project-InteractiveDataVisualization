@@ -5,6 +5,7 @@ var currentyear = 2005;
 var map;
 var dataset;
 var stats =[] ;
+var map;
 // Chargement des données
 d3.json("json/output.json", function (data) {
   dataset = data;
@@ -27,35 +28,35 @@ d3.json("json/output.json", function (data) {
     stats[e.iyear][e.country_iso].nkill += isNaN(parseInt(e.nkill)) ? 0 : parseInt(e.nkill) ;
     stats[e.iyear][e.country_iso].fillKey =getCountryColorFromKillNumber(stats[e.iyear][e.country_iso].nkill);
   });
+  map =  new Datamap({
+    scope: "world",
+    responsive: true,
+    element: document.getElementById("map"),
+    projection: "mercator",
+    height: height,
+    width: width,
+    geographyConfig: {
+      popupTemplate: countryTemplate
+    },
+    fills: {
+      UNKNOWN: "#D8D8D8",
+      LOW: "#ff9090",
+      MEDIUM: "#ff0000",
+      HIGH: "#a30000",
+      defaultFill: "#D8D8D8"
+    },
+    done: function (datamap) {
+      datamap.updateChoropleth(stats[currentyear]);
+      $("#slider").on("input change", function () {
+        currentyear = currentYearChanged();
+        updateMap(datamap, centered, currentyear, true);
+      });
+      datamap.svg.selectAll(".datamaps-subunit").on("click", function (geography) {
+        updateMap(datamap, geography, currentyear, false);
+      });
+    }
+  }).legend();
 });
-
-map = new Datamap({
-  scope: "world",
-  responsive: true,
-  element: document.getElementById("map"),
-  projection: "mercator",
-  height: height,
-  width: width,
-  geographyConfig: {
-    popupTemplate: countryTemplate
-  },
-  fills: {
-    UNKNOWN: "#D8D8D8",
-    LOW: "#ff9090",
-    MEDIUM: "#ff0000",
-    HIGH: "#a30000",
-    defaultFill: "#D8D8D8"
-  },
-  done: function (datamap) {
-    $("#slider").on("input change", function () {
-      currentyear = currentYearChanged();
-      updateMap(datamap, centered, currentyear, true);
-    });
-    datamap.svg.selectAll(".datamaps-subunit").on("click", function (geography) {
-      updateMap(datamap, geography, currentyear, false);
-    });
-  }
-}).legend();
 
 $(document).ready(function () {
   currentyear = currentYearChanged();
