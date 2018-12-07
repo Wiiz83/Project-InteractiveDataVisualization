@@ -46,6 +46,8 @@ d3.json("json/output.json", function (data) {
       LOW: "#ff9090",
       MEDIUM: "#ff0000",
       HIGH: "#a30000",
+      SUCCESS: "#7A9A01",
+      FAILURE: "#C91212",
       defaultFill: "#D8D8D8"
     },
     done: function (datamap) {
@@ -77,6 +79,52 @@ function currentYearChanged() {
 
   // Filtrer les données avec l'année choisie
   return slider.value;
+}
+
+function getGlyphoAttackType(attacktype){
+  var urlImg = "";
+  switch (attacktype) {
+    // Assassination
+    case "1":
+      urlImg = "/img/glypho/assassination.svg";
+      break;
+    // Armed Assault
+    case "2":
+      urlImg = "/img/glypho/armed.svg";
+      break;
+    // Bombing/Explosion
+    case "3":
+      urlImg = "/img/glypho/bombing.svg";
+      break;
+    // Hijacking = avion
+    case "4":
+      urlImg = "/img/glypho/highjack.svg";
+      break;
+    // Hostage Taking (Barricade Incident)
+    case "5":
+      urlImg = "/img/glypho/hostage.png";
+      break;
+    // Hostage Taking (Kidnapping)
+    case "6":
+      urlImg = "/img/glypho/kidnapping.svg";
+      break;
+    // Facility/Infrastructure Attack
+    case "7":
+      urlImg = "/img/glypho/building.svg";
+      break;
+    // Unarmed Assault
+    case "8":
+      urlImg = "/img/glypho/unarmed.svg";
+      break;
+    // Unknown
+    case "9":
+      urlImg = "/img/glypho/unknown.svg";
+      break;
+    default :
+      urlImg = "/img/glypho/unknown.svg";
+      break;
+  }
+  return urlImg;
 }
 
 function updateMap(datamap, geography, year, yearchange = false) {
@@ -178,17 +226,39 @@ function getCountryBubbles(geo, data, year = currentyear) {
       return "HIGH";
     }
   }
+  function getColorFromSuccess(l) {
+    if (l == 1) {
+      return "SUCCESS";
+    } else if (l == 0) {
+      return "FAILURE";
+    } 
+  }
+  function getBorderFromWoundNumber(l) {
+    if (l <= 1) {
+      return 0;
+    } else if (l <= 10){
+      return 1;
+    } else if (l <= 20){
+      return 1.5;
+    } else if (l <= 30){
+      return 2;
+    } else if (l <= 40){
+      return 2.5;
+    } else {
+      return 3;
+    }
+  }
   return dataset
     .filter(u => u.iyear == year && u.country_iso==data.id)
     .map(u => ({
       event: u,
       latitude: u.latitude,
       longitude: u.longitude,
-      borderWidth: 0.5,
+      borderWidth: getBorderFromWoundNumber(u.nwound),
       borderOpacity: 1,
-      radius: 0.4,
-      fillOpacity: 0.75,
-      fillKey: getColorFromKillNumber(u.nkill),
+      radius: 0.8,
+      fillOpacity: 0.8,
+      fillKey: getColorFromSuccess(u.success),
       borderColor: "#000000"
     }));
 }
@@ -239,7 +309,10 @@ function bubbleTemplate(geo, data) {
 
     "<br> Tués: " + data.event.nkill +
     ' <br> Blessés:  ' + (data.event.nwound == null ? 'N/D' : data.event.nwound) +
-    "<br> Type(s) d'attaque: " + data.event.attacktype1_txt + armedAttackTypes(data.event) +
+    "<br> Type(s) d'attaque: " +
+    '<br> <img style="width:42px;height:42px;border:0;" src="'+ getGlyphoAttackType(data.event.attacktype1) +'">' +
+    '<img style="width:42px;height:42px;border:0;" src="'+ getGlyphoAttackType(data.event.attacktype2) +'">' +
+    '<img style="width:42px;height:42px;border:0;" src="'+ getGlyphoAttackType(data.event.attacktype3) +'">' +
     "<br> Type(s) d'armes: " + weapons(data.event) +
     "<br> Description: " + data.event.summary +
     "</div>"
