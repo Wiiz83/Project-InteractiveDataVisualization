@@ -95,7 +95,7 @@ function updateMap(datamap, geography, year, yearchange = false) {
       datamap.bubbles(getCountryBubbles(datamap, geography, year), {
         popupTemplate: bubbleTemplate
       });
-      zoomToCountry(datamap, geography);
+      zoomToCountry(datamap, geography,year);
     }
 }
 
@@ -108,7 +108,7 @@ function zoomToWorld(map) {
     .attr("transform", "");
 }
 
-function zoomToCountry(map, geography) {
+function zoomToCountry(map, geography,year) {
   var path = d3.geo.path().projection(map.projection);
   var bounds = path.bounds(geography),
     dx = bounds[1][0] - bounds[0][0],
@@ -126,25 +126,21 @@ function zoomToCountry(map, geography) {
     .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
 }
 
-// TODO
-function getCountryStats(geo, data, year = currentyear) {
-  return {
-    stat1: 10,
-    stat2: 20
-  };
-}
-
-// TODO
-function countryTemplate(geography, data) {
-  const stats = getCountryStats(geography, data);
+function countryTemplate(geography, data) {  
   return (
-    "<div class='hoverinfo'>Country: " +
+    "<div class='hoverinfo'>Pays: " +
     geography.properties.name +
-    " (" +
-    geography.id +
-    " )" +
-    "<br> Stat1: " +
-    stats.stat1 +
+    (stats[geography.id][currentyear] != null ? 
+      " <br>Nombre d'attaques: " +
+      stats[geography.id][currentyear].n +
+      " <br>Réussis: " +
+      stats[geography.id][currentyear].success +
+      " <br>Tués: " +
+      stats[geography.id][currentyear].nkill +
+      " <br>Blessés: " +
+      stats[geography.id][currentyear].nwound 
+       : "Aucune donnée")
+      +
     "</div>"
   );
 }
