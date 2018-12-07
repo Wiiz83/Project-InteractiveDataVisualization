@@ -9,21 +9,23 @@ var stats =[] ;
 d3.json("json/output.json", function (data) {
   dataset = data;
   dataset.forEach(e => {
-    if (!stats[e.country_iso]) {
-      stats[e.country_iso]=[];
+    if (!stats[e.iyear]) {
+      stats[e.iyear]=[];
     }
-    if (!stats[e.country_iso][e.iyear]) {
-      stats[e.country_iso][e.iyear] = {
+    if (!stats[e.iyear][e.country_iso]) {
+      stats[e.iyear][e.country_iso] = {
         n:0,
         success:0,
         nwound:0,
-        nkill:0
+        nkill:0,
+        iso : e.country_iso
       }
     }
-    stats[e.country_iso][e.iyear].n ++;
-    stats[e.country_iso][e.iyear].success += parseInt(e.success);
-    stats[e.country_iso][e.iyear].nwound += isNaN(parseInt(e.nwound)) ? 0 : parseInt(e.nwound) ;
-    stats[e.country_iso][e.iyear].nkill += isNaN(parseInt(e.nkill)) ? 0 : parseInt(e.nkill) ;
+    stats[e.iyear][e.country_iso].n ++;
+    stats[e.iyear][e.country_iso].success += parseInt(e.success);
+    stats[e.iyear][e.country_iso].nwound += isNaN(parseInt(e.nwound)) ? 0 : parseInt(e.nwound) ;
+    stats[e.iyear][e.country_iso].nkill += isNaN(parseInt(e.nkill)) ? 0 : parseInt(e.nkill) ;
+    stats[e.iyear][e.country_iso].fillKey =getCountryColorFromKillNumber(stats[e.iyear][e.country_iso].nkill);
   });
 });
 
@@ -41,7 +43,7 @@ map = new Datamap({
     HIGH: "#C70039",
     LOW: "#FFFE33",
     MEDIUM: "#3385FF",
-    defaultFill: "green"
+    defaultFill: "#D8D8D8"
   },
   done: function (datamap) {
     $("#slider").on("input change", function () {
@@ -100,6 +102,7 @@ function updateMap(datamap, geography, year, yearchange = false) {
 }
 
 function zoomToWorld(map) {
+  map.updateChoropleth(stats[currentyear]);
   map.svg
     .selectAll(".datamaps-subunits")
     .transition()
@@ -126,20 +129,32 @@ function zoomToCountry(map, geography,year) {
     .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
 }
 
-function countryTemplate(geography, data) {  
+function getCountryColorFromKillNumber(l) {
+  if (l <= 5) {
+    return "LOW";
+  } else if (l < 50) {
+    return "MEDIUM";
+  } else {
+    return "HIGH";
+  }
+}
+
+
+
+function countryTemplate(geography, data) {
   return (
     "<div class='hoverinfo'>Pays: " +
     geography.properties.name +
-    (stats[geography.id][currentyear] != null ? 
+    (stats[currentyear][geography.id] != null ? 
       " <br>Nombre d'attaques: " +
-      stats[geography.id][currentyear].n +
-      " <br>Réussis: " +
-      stats[geography.id][currentyear].success +
+      stats[currentyear][geography.id].n +
+      " <br>Réussies: " +
+      stats[currentyear][geography.id].success +
       " <br>Tués: " +
-      stats[geography.id][currentyear].nkill +
+      stats[currentyear][geography.id].nkill +
       " <br>Blessés: " +
-      stats[geography.id][currentyear].nwound 
-       : "Aucune donnée")
+      stats[currentyear][geography.id].nwound 
+       : "<br>Aucune donnée")
       +
     "</div>"
   );
