@@ -40,9 +40,10 @@ map = new Datamap({
     popupTemplate: countryTemplate
   },
   fills: {
-    HIGH: "#C70039",
-    LOW: "#FFFE33",
-    MEDIUM: "#3385FF",
+    UNKNOWN: "#D8D8D8",
+    LOW: "#ff9090",
+    MEDIUM: "#ff0000",
+    HIGH: "#a30000",
     defaultFill: "#D8D8D8"
   },
   done: function (datamap) {
