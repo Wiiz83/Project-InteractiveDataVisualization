@@ -5,7 +5,7 @@ var currentyear = 2005;
 var map;
 var dataset;
 var stats =[] ;
-var map;
+var isos = new Set();
 // Chargement des données
 d3.json("json/output.json", function (data) {
   dataset = data;
@@ -13,6 +13,7 @@ d3.json("json/output.json", function (data) {
     if (e.country_iso.includes("NF__")) {
       return;
     }
+    isos.add(e.country_iso);
     if (!stats[e.iyear]) {
       stats[e.iyear]=[];
     }
@@ -30,8 +31,13 @@ d3.json("json/output.json", function (data) {
     stats[e.iyear][e.country_iso].success += parseInt(e.success);
     stats[e.iyear][e.country_iso].nwound += isNaN(parseInt(e.nwound)) ? 0 : parseInt(e.nwound) ;
     stats[e.iyear][e.country_iso].nkill += isNaN(parseInt(e.nkill)) ? 0 : parseInt(e.nkill) ;
-    stats[e.iyear][e.country_iso].fillKey =getCountryColorFromKillNumber(stats[e.iyear][e.country_iso].nkill);
+    stats[e.iyear][e.country_iso].fillKey =getCountryColorFromKillNumber(stats[e.iyear][e.country_iso].nkill,stats[e.iyear][e.country_iso].n);
   });
+  isos.forEach(iso => stats.forEach(yearstat =>  {
+    if (!yearstat[iso]) {
+      yearstat[iso] = {fillKey: "UNKNOWN", n:0};
+    }
+  }));
   map =  new Datamap({
     scope: "world",
     responsive: true,
@@ -47,14 +53,15 @@ d3.json("json/output.json", function (data) {
       LOW: "#ff9090",
       MEDIUM: "#ff0000",
       HIGH: "#a30000",
-
+      SUCCESS: "#7A9A01",
+      FAILURE: "#C91212",
       defaultFill: "#D8D8D8"
     },
     done: function (datamap) {
       datamap.updateChoropleth(stats[currentyear]);
-      $("#slider").on("input change", function () {
-        datamap.updateChoropleth(stats[currentyear]);
+      $("#slider").on("input change", function () {      
         currentyear = currentYearChanged();
+        datamap.updateChoropleth(stats[currentyear]);
         updateMap(datamap, centered, currentyear, true);
       });
       datamap.svg.selectAll(".datamaps-subunit").on("click", function (geography) {
@@ -184,10 +191,11 @@ function zoomToCountry(map, geography,year) {
     .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
 }
 
-function getCountryColorFromKillNumber(l) {
-  if (l==null || l==undefined) {
+function getCountryColorFromKillNumber(l,n) {
+  if (l==null || l==undefined || n==0 ) {
     return"UNKNOWN";
   }
+  else
   if (l <= 5) {
     return "LOW";
   } else if (l < 50) {
@@ -203,7 +211,7 @@ function countryTemplate(geography, data) {
   return (
     "<div class='hoverinfo'>Pays: " +
     geography.properties.name +
-    (stats[currentyear][geography.id] != null ? 
+    (stats[currentyear][geography.id].n >0 ? 
       " <br>Nombre d'attaques: " +
       stats[currentyear][geography.id].n +
       " <br>Réussies: " +
@@ -213,8 +221,8 @@ function countryTemplate(geography, data) {
       " <br>Blessés: " +
       stats[currentyear][geography.id].nwound 
        : "<br>Aucune donnée")
-      +
-    "</div>"
+       +
+           "</div>"
   );
 }
 
@@ -261,7 +269,7 @@ function getCountryBubbles(geo, data, year = currentyear) {
       borderOpacity: 1,
       radius: 0.8,
       fillOpacity: 0.8,
-      fillKey: getColorFromKillNumber(u.nkill),
+      fillKey: getColorFromSuccess(u.success),
       borderColor: "#000000"
     }));
 }
