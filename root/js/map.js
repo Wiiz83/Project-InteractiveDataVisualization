@@ -132,6 +132,9 @@ function zoomToCountry(map, geography,year) {
 }
 
 function getCountryColorFromKillNumber(l) {
+  if (l==undefined) {
+    return"UNKNOWN";
+  }
   if (l <= 5) {
     return "LOW";
   } else if (l < 50) {
