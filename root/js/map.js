@@ -6,7 +6,7 @@ var map;
 var dataset;
 
 // Chargement des données
-d3.json("json/convertcsv.json", function (data) {
+d3.json("json/output.json", function (data) {
   dataset = data;
 });
 
