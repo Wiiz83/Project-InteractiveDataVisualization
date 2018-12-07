@@ -10,6 +10,9 @@ var map;
 d3.json("json/output.json", function (data) {
   dataset = data;
   dataset.forEach(e => {
+    if (e.country_iso.includes("NF__")) {
+      return;
+    }
     if (!stats[e.iyear]) {
       stats[e.iyear]=[];
     }
@@ -176,7 +179,7 @@ function getCountryBubbles(geo, data, year = currentyear) {
     }
   }
   return dataset
-    .filter(u => u.iyear == year)
+    .filter(u => u.iyear == year && u.country_iso==data.id)
     .map(u => ({
       event: u,
       latitude: u.latitude,
