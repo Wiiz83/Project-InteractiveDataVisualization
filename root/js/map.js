@@ -53,10 +53,12 @@ d3.json("json/output.json", function (data) {
     done: function (datamap) {
       datamap.updateChoropleth(stats[currentyear]);
       $("#slider").on("input change", function () {
+        datamap.updateChoropleth(stats[currentyear]);
         currentyear = currentYearChanged();
         updateMap(datamap, centered, currentyear, true);
       });
       datamap.svg.selectAll(".datamaps-subunit").on("click", function (geography) {
+        datamap.updateChoropleth(stats[currentyear]);
         updateMap(datamap, geography, currentyear, false);
       });
     }
@@ -155,7 +157,6 @@ function updateMap(datamap, geography, year, yearchange = false) {
 }
 
 function zoomToWorld(map) {
-  map.updateChoropleth(stats[currentyear]);
   map.svg
     .selectAll(".datamaps-subunits")
     .transition()
