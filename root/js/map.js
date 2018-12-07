@@ -235,19 +235,20 @@ function getCountryBubbles(geo, data, year = currentyear) {
       return "FAILURE";
     } 
   }
-  function getBorderFromWoundNumber(l) {
-    if (l <= 1) {
-      return 0.5;
-    } else if (l <= 10){
+  function getBorderFromKillAndWoundNumber(w, k) {
+    var total = Number(w) + Number(k);
+    if (total == 0) {
+      return 0;
+    } else if (total <= 20){
       return 1;
-    } else if (l <= 20){
-      return 1.5;
-    } else if (l <= 30){
+    } else if (total <= 40){
       return 2;
-    } else if (l <= 40){
-      return 2.5;
-    } else {
+    } else if (total <= 80){
       return 3;
+    } else if (total <= 160){
+      return 4;
+    } else {
+      return 5;
     }
   }
   return dataset
@@ -256,7 +257,7 @@ function getCountryBubbles(geo, data, year = currentyear) {
       event: u,
       latitude: u.latitude,
       longitude: u.longitude,
-      borderWidth: getBorderFromWoundNumber(u.nwound),
+      borderWidth: getBorderFromKillAndWoundNumber(u.nwound, u.nkill),
       borderOpacity: 1,
       radius: 0.8,
       fillOpacity: 0.8,
