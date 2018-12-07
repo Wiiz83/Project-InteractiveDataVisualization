@@ -184,7 +184,7 @@ function zoomToCountry(map, geography,year) {
 }
 
 function getCountryColorFromKillNumber(l) {
-  if (l==undefined) {
+  if (l==null) {
     return"UNKNOWN";
   }
   if (l <= 5) {
