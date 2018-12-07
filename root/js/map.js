@@ -4,10 +4,27 @@ var centered = null;
 var currentyear = 2005;
 var map;
 var dataset;
-
+var stats =[] ;
 // Chargement des données
 d3.json("json/output.json", function (data) {
   dataset = data;
+  dataset.forEach(e => {
+    if (!stats[e.country_iso]) {
+      stats[e.country_iso]=[];
+    }
+    if (!stats[e.country_iso][e.iyear]) {
+      stats[e.country_iso][e.iyear] = {
+        n:0,
+        success:0,
+        nwound:0,
+        nkill:0
+      }
+    }
+    stats[e.country_iso][e.iyear].n ++;
+    stats[e.country_iso][e.iyear].success += parseInt(e.success);
+    stats[e.country_iso][e.iyear].nwound += isNaN(parseInt(e.nwound)) ? 0 : parseInt(e.nwound) ;
+    stats[e.country_iso][e.iyear].nkill += isNaN(parseInt(e.nkill)) ? 0 : parseInt(e.nkill) ;
+  });
 });
 
 map = new Datamap({
