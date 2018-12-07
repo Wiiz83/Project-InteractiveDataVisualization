@@ -4,7 +4,8 @@ var centered = null;
 var currentyear = 2005;
 var map;
 var dataset;
-var stats =[] ;
+var stats = [];
+var isos = new Set();
 var map;
 // Chargement des données
 d3.json("json/output.json", function (data) {
@@ -13,26 +14,25 @@ d3.json("json/output.json", function (data) {
     if (e.country_iso.includes("NF__")) {
       return;
     }
+    isos.add(e.country_iso);
     if (!stats[e.iyear]) {
-      stats[e.iyear]=[];
+      stats[e.iyear] = [];
     }
     if (!stats[e.iyear][e.country_iso]) {
       stats[e.iyear][e.country_iso] = {
-        n:0,
-        success:0,
-        nwound:0,
-        nkill:0,
-        iso : e.country_iso,
-        fillKey: "UNKNOWN"
+        n: 0,
+        success: 0,
+        nwound: 0,
+        nkill: 0,
+        iso: e.country_iso,
       }
     }
-    stats[e.iyear][e.country_iso].n ++;
+    stats[e.iyear][e.country_iso].n++;
     stats[e.iyear][e.country_iso].success += parseInt(e.success);
-    stats[e.iyear][e.country_iso].nwound += isNaN(parseInt(e.nwound)) ? 0 : parseInt(e.nwound) ;
-    stats[e.iyear][e.country_iso].nkill += isNaN(parseInt(e.nkill)) ? 0 : parseInt(e.nkill) ;
-    stats[e.iyear][e.country_iso].fillKey =getCountryColorFromKillNumber(stats[e.iyear][e.country_iso].nkill);
+    stats[e.iyear][e.country_iso].nwound += isNaN(parseInt(e.nwound)) ? 0 : parseInt(e.nwound);
+    stats[e.iyear][e.country_iso].nkill += isNaN(parseInt(e.nkill)) ? 0 : parseInt(e.nkill);
   });
-  map =  new Datamap({
+  map = new Datamap({
     scope: "world",
     responsive: true,
     element: document.getElementById("map"),
@@ -47,18 +47,15 @@ d3.json("json/output.json", function (data) {
       LOW: "#ff9090",
       MEDIUM: "#ff0000",
       HIGH: "#a30000",
-
       defaultFill: "#D8D8D8"
     },
     done: function (datamap) {
-      datamap.updateChoropleth(stats[currentyear]);
+      updateCountryColors(datamap);
       $("#slider").on("input change", function () {
-        datamap.updateChoropleth(stats[currentyear]);
         currentyear = currentYearChanged();
         updateMap(datamap, centered, currentyear, true);
       });
       datamap.svg.selectAll(".datamaps-subunit").on("click", function (geography) {
-        datamap.updateChoropleth(stats[currentyear]);
         updateMap(datamap, geography, currentyear, false);
       });
     }
@@ -69,6 +66,18 @@ $(document).ready(function () {
   currentyear = currentYearChanged();
 });
 
+function updateCountryColors(datamap,year = currentyear) {
+  isos.forEach(
+    i => {
+    if (stats[year][i] == null) {
+      stats[year][i] = {};
+      stats[year][i].fillKey = "UNKNOWN"
+    } else  {stats[year][i].fillKey = getCountryColorFromKillNumber(stats[year][i].nkill)}
+    datamap.updateChoropleth(stats[year]);
+  }
+  );
+  
+}
 
 function currentYearChanged() {
   var slider = document.getElementById("slider");
@@ -84,46 +93,46 @@ function currentYearChanged() {
   return slider.value;
 }
 
-function getGlyphoAttackType(attacktype){
+function getGlyphoAttackType(attacktype) {
   var urlImg = "";
   switch (attacktype) {
     // Assassination
     case "1":
       urlImg = "/img/glypho/assassination.svg";
       break;
-    // Armed Assault
+      // Armed Assault
     case "2":
       urlImg = "/img/glypho/armed.svg";
       break;
-    // Bombing/Explosion
+      // Bombing/Explosion
     case "3":
       urlImg = "/img/glypho/bombing.svg";
       break;
-    // Hijacking = avion
+      // Hijacking = avion
     case "4":
       urlImg = "/img/glypho/highjack.svg";
       break;
-    // Hostage Taking (Barricade Incident)
+      // Hostage Taking (Barricade Incident)
     case "5":
       urlImg = "/img/glypho/hostage.png";
       break;
-    // Hostage Taking (Kidnapping)
+      // Hostage Taking (Kidnapping)
     case "6":
       urlImg = "/img/glypho/kidnapping.svg";
       break;
-    // Facility/Infrastructure Attack
+      // Facility/Infrastructure Attack
     case "7":
       urlImg = "/img/glypho/building.svg";
       break;
-    // Unarmed Assault
+      // Unarmed Assault
     case "8":
       urlImg = "/img/glypho/unarmed.svg";
       break;
-    // Unknown
+      // Unknown
     case "9":
       urlImg = "/img/glypho/unknown.svg";
       break;
-    default :
+    default:
       urlImg = "/img/glypho/unknown.svg";
       break;
   }
@@ -153,8 +162,9 @@ function updateMap(datamap, geography, year, yearchange = false) {
       datamap.bubbles(getCountryBubbles(datamap, geography, year), {
         popupTemplate: bubbleTemplate
       });
-      zoomToCountry(datamap, geography,year);
+      zoomToCountry(datamap, geography, year);
     }
+  updateCountryColors(datamap,year);
 }
 
 function zoomToWorld(map) {
@@ -166,7 +176,7 @@ function zoomToWorld(map) {
     .attr("transform", "");
 }
 
-function zoomToCountry(map, geography,year) {
+function zoomToCountry(map, geography, year) {
   var path = d3.geo.path().projection(map.projection);
   var bounds = path.bounds(geography),
     dx = bounds[1][0] - bounds[0][0],
@@ -185,8 +195,8 @@ function zoomToCountry(map, geography,year) {
 }
 
 function getCountryColorFromKillNumber(l) {
-  if (l==null || l==undefined) {
-    return"UNKNOWN";
+  if (l == null || l == undefined) {
+    return "UNKNOWN";
   }
   if (l <= 5) {
     return "LOW";
@@ -203,7 +213,7 @@ function countryTemplate(geography, data) {
   return (
     "<div class='hoverinfo'>Pays: " +
     geography.properties.name +
-    (stats[currentyear][geography.id] != null ? 
+    (stats[currentyear][geography.id] != null ?
       " <br>Nombre d'attaques: " +
       stats[currentyear][geography.id].n +
       " <br>Réussies: " +
@@ -211,9 +221,8 @@ function countryTemplate(geography, data) {
       " <br>Tués: " +
       stats[currentyear][geography.id].nkill +
       " <br>Blessés: " +
-      stats[currentyear][geography.id].nwound 
-       : "<br>Aucune donnée")
-      +
+      stats[currentyear][geography.id].nwound :
+      "<br>Aucune donnée") +
     "</div>"
   );
 }
@@ -228,30 +237,32 @@ function getCountryBubbles(geo, data, year = currentyear) {
       return "HIGH";
     }
   }
+
   function getColorFromSuccess(l) {
     if (l == 1) {
       return "SUCCESS";
     } else if (l == 0) {
       return "FAILURE";
-    } 
+    }
   }
+
   function getBorderFromWoundNumber(l) {
     if (l <= 1) {
       return 0.5;
-    } else if (l <= 10){
+    } else if (l <= 10) {
       return 1;
-    } else if (l <= 20){
+    } else if (l <= 20) {
       return 1.5;
-    } else if (l <= 30){
+    } else if (l <= 30) {
       return 2;
-    } else if (l <= 40){
+    } else if (l <= 40) {
       return 2.5;
     } else {
       return 3;
     }
   }
   return dataset
-    .filter(u => u.iyear == year && u.country_iso==data.id)
+    .filter(u => u.iyear == year && u.country_iso == data.id)
     .map(u => ({
       event: u,
       latitude: u.latitude,
@@ -312,9 +323,9 @@ function bubbleTemplate(geo, data) {
     "<br> Tués: " + data.event.nkill +
     ' <br> Blessés:  ' + (data.event.nwound == null ? 'N/D' : data.event.nwound) +
     "<br> Type(s) d'attaque: " +
-    '<br> <img style="width:42px;height:42px;border:0;" src="'+ getGlyphoAttackType(data.event.attacktype1) +'">' +
-    '<img style="width:42px;height:42px;border:0;" src="'+ getGlyphoAttackType(data.event.attacktype2) +'">' +
-    '<img style="width:42px;height:42px;border:0;" src="'+ getGlyphoAttackType(data.event.attacktype3) +'">' +
+    '<br> <img style="width:42px;height:42px;border:0;" src="' + getGlyphoAttackType(data.event.attacktype1) + '">' +
+    '<img style="width:42px;height:42px;border:0;" src="' + getGlyphoAttackType(data.event.attacktype2) + '">' +
+    '<img style="width:42px;height:42px;border:0;" src="' + getGlyphoAttackType(data.event.attacktype3) + '">' +
     "<br> Type(s) d'armes: " + weapons(data.event) +
     "<br> Description: " + data.event.summary +
     "</div>"
