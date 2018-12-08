@@ -211,7 +211,7 @@ function countryTemplate(geography, data) {
   return (
     "<div class='hoverinfo'>Pays: " +
     geography.properties.name +
-    (stats[currentyear][geography.id].n >0 ? 
+    ( (stats[currentyear][geography.id]!=null && stats[currentyear][geography.id].n >0) ? 
       " <br>Nombre d'attaques: " +
       stats[currentyear][geography.id].n +
       " <br>Réussies: " +
